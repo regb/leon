@@ -75,6 +75,8 @@ object Leon extends Build {
     base = file("."),
     settings = Project.defaultSettings ++ LeonProject.settings
   ).dependsOn(Github.bonsai, Github.scalaSmtLib)
+   .configs(IntegrationTest)
+   .settings(Defaults.itSettings:_*)
 
   object Github {
     def project(repo: String, version: String) = RootProject(uri(s"${repo}#${version}"))
