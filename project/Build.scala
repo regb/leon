@@ -70,13 +70,15 @@ object Leon extends Build {
     )
   }
 
+  lazy val FunTest = config("fun").extend(Test)
+
   lazy val root = Project(
     id = "leon",
     base = file("."),
     settings = Project.defaultSettings ++ LeonProject.settings
   ).dependsOn(Github.bonsai, Github.scalaSmtLib)
-   .configs(IntegrationTest)
-   .settings(Defaults.itSettings:_*)
+   .configs(FunTest)
+   .settings(inConfig(FunTest)(Defaults.testSettings):_*)
 
   object Github {
     def project(repo: String, version: String) = RootProject(uri(s"${repo}#${version}"))

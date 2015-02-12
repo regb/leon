@@ -25,7 +25,7 @@ resolvers += "Typesafe Repository" at "http://repo.typesafe.com/typesafe/release
 
 libraryDependencies ++= Seq(
     "org.scala-lang" % "scala-compiler" % "2.11.5",
-    "org.scalatest" %% "scalatest" % "2.2.0" % "it,test",
+    "org.scalatest" %% "scalatest" % "2.2.0" % "fun,test",
     "com.typesafe.akka" %% "akka-actor" % "2.3.4"
 )
 
@@ -33,22 +33,22 @@ Keys.fork in run := true
 
 Keys.fork in Test := true
 
-Keys.fork in IntegrationTest := true
+Keys.fork in FunTest := true
 
 logBuffered in Test := false
 
-logBuffered in IntegrationTest := false
+logBuffered in FunTest := false
 
 testOptions in Test += Tests.Argument("-oDF")
 
-testOptions in IntegrationTest += Tests.Argument("-oDF")
+testOptions in FunTest += Tests.Argument("-oDF")
 
 javaOptions in (Test,run) ++= Seq("-Xss32M", "-Xmx3G", "-XX:MaxPermSize=1024M")
 
-javaOptions in (IntegrationTest,run) += "-Xss32M"
+javaOptions in (FunTest,run) += "-Xss32M"
 
 parallelExecution in Test := false
 
-parallelExecution in IntegrationTest := false
+parallelExecution in FunTest := false
 
 sourcesInBase in Compile := false
