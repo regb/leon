@@ -20,6 +20,7 @@ object Main {
       xlang.XLangDesugaringPhase,
       purescala.FunctionClosure,
       synthesis.SynthesisPhase,
+      optimization.OptimizationPhase,
       termination.TerminationPhase,
       verification.VerificationPhase,
       repair.RepairPhase,
@@ -52,6 +53,7 @@ object Main {
     val optTermination = LeonFlagOptionDef("termination", "Check program termination. Can be used along --verify",     false)
     val optRepair      = LeonFlagOptionDef("repair",      "Repair selected functions",                                 false)
     val optSynthesis   = LeonFlagOptionDef("synthesis",   "Partial synthesis of choose() constructs",                  false)
+    val optOptimize    = LeonFlagOptionDef("optimize",    "Optimize the program",                                      false)
     val optIsabelle    = LeonFlagOptionDef("isabelle",    "Run Isabelle verification",                                 false)
     val optNoop        = LeonFlagOptionDef("noop",        "No operation performed, just output program",               false)
     val optVerify      = LeonFlagOptionDef("verify",      "Verify function contracts",                                 false)
@@ -63,7 +65,7 @@ object Main {
     val optGenc        = LeonFlagOptionDef("genc",        "Generate C code",                                           false)
 
     override val definedOptions: Set[LeonOptionDef[Any]] =
-      Set(optTermination, optRepair, optSynthesis, optIsabelle, optNoop, optHelp, optEval, optVerify, optInstrument, optRunnable, optInferInv, optLazyEval, optGenc)
+      Set(optTermination, optRepair, optSynthesis, optOptimize, optIsabelle, optNoop, optHelp, optEval, optVerify, optInstrument, optRunnable, optInferInv, optLazyEval, optGenc)
   }
 
   lazy val allOptions: Set[LeonOptionDef[Any]] = allComponents.flatMap(_.definedOptions)
@@ -158,6 +160,7 @@ object Main {
     import utils.FileOutputPhase
     import frontends.scalac.{ ExtractionPhase, ClassgenPhase }
     import synthesis.SynthesisPhase
+    import optimization.OptimizationPhase
     import termination.TerminationPhase
     import xlang.FixReportLabels
     import verification.VerificationPhase
@@ -175,6 +178,7 @@ object Main {
     val helpF = ctx.findOptionOrDefault(optHelp)
     val noopF = ctx.findOptionOrDefault(optNoop)
     val synthesisF = ctx.findOptionOrDefault(optSynthesis)
+    val optimizeF = ctx.findOptionOrDefault(optOptimize)
     val repairF = ctx.findOptionOrDefault(optRepair)
     val isabelleF = ctx.findOptionOrDefault(optIsabelle)
     val terminationF = ctx.findOptionOrDefault(optTermination)
@@ -207,6 +211,7 @@ object Main {
       val pipeProcess: Pipeline[Program, Any] = {
         if (noopF) RestoreMethods andThen FileOutputPhase
         else if (synthesisF) SynthesisPhase
+        else if (optimizeF) OptimizationPhase
         else if (repairF) RepairPhase
         else if (analysisF) Pipeline.both(verification, termination)
         else if (terminationF) termination
