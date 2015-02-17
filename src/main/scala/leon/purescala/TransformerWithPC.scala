@@ -79,6 +79,10 @@ abstract class TransformerWithPC extends Transformer {
       val rc = rec(cond, path)
       IfExpr(rc, rec(thenn, path withCond rc), rec(elze, path withCond Not(rc))).copiedFrom(e)
 
+    case Require(cond, body) =>
+      val rc = rec(cond, path)
+      Require(rc, rec(body, register(rc, path)))
+
     case And(es) =>
       var soFar = path
       andJoin(for(e <- es) yield {

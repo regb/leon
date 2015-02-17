@@ -1,3 +1,5 @@
+/* Copyright 2009-2015 EPFL, Lausanne */
+
 package leon
 package optimization
 
@@ -17,9 +19,9 @@ object OptimizationPhase extends TransformationPhase {
   def apply(ctx: LeonContext, p: Program): Program = {
     ctx.reporter.info("Performing optimization on input program...")
 
+    val pipeline = DeadCodeEliminationPhase
 
-
-    p
+    pipeline.run(ctx)(p)
   }
 
 
