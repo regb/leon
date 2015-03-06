@@ -163,7 +163,6 @@ trait LeonTestSuite extends FunSuite with Timeouts with BeforeAndAfterEach {
       new File(resourceDirHard + dir)
     } else new File(d.toURI())
 
-    println(asFile.getPath)
     asFile.listFiles().filter(f => filter(f.getPath()))
   }
 }
