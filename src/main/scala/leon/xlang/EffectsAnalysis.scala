@@ -173,9 +173,13 @@ class EffectsAnalysis {
     val allCalls: Set[FunctionInvocation] = functionCallsOf(expr)
 
     val secondLevelMutated: Set[Identifier] = 
-      allCalls.foldLeft(Set[Identifier]())((totalEffects, fi) =>
-        totalEffects ++ freeVars.intersect(invocationCurrentEffects(fi, fdsEffects))
-      )
+      allCalls.foldLeft(Set[Identifier]())((totalEffects, fi) => {
+        val invocEffects = invocationCurrentEffects(fi, fdsEffects)
+
+        totalEffects ++ localAliases.flatMap{ case (fv, aliases) => 
+          if(invocEffects.intersect(aliases).nonEmpty) Some(fv) else None
+        }
+      })
 
     firstLevelMutated ++ secondLevelMutated
   }
@@ -252,10 +256,12 @@ class EffectsAnalysis {
 
       for{ (fd, calls) <- missingEffects } {
         var newMissingCalls: Set[FunctionInvocation] = calls
+        val mutableParams = fd.params.filter(vd => isMutableType(vd.getType))
+        val localAliases: Map[ValDef, Set[Identifier]] = mutableParams.map(vd => (vd, computeLocalAliases(vd.id, fd.fullBody))).toMap
         for(fi <- calls) {
           val mutatedArgs = invocEffects(fi)
-          val mutatedFunParams: Set[Int] = fd.params.zipWithIndex.flatMap{
-            case (vd, i) if mutatedArgs.contains(vd.id) => Some(i)
+          val mutatedFunParams: Set[Int] = mutableParams.zipWithIndex.flatMap{
+            case (vd, i) if localAliases(vd).exists(id => mutatedArgs.contains(id)) => Some(i)
             case _ => None
           }.toSet
           effects += (fd -> (effects(fd) ++ mutatedFunParams))
